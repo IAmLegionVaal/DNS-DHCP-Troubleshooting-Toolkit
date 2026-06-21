@@ -1,0 +1,9 @@
+[CmdletBinding(SupportsShouldProcess=$true)]
+param([switch]$FlushDns,[switch]$RenewDhcp,[switch]$RestartDnsClient,[switch]$ResetWinsock,[string[]]$InterfaceAlias,[string]$OutputPath="$env:USERPROFILE\Desktop\DnsDhcpRepair")
+$ErrorActionPreference='Stop';New-Item -ItemType Directory -Path $OutputPath -Force|Out-Null;$Log=Join-Path $OutputPath ("repair-{0:yyyyMMdd-HHmmss}.log"-f(Get-Date));function L($m){"$(Get-Date -Format s) $m"|Tee-Object -FilePath $Log -Append};if(-not($FlushDns-or$RenewDhcp-or$RestartDnsClient-or$ResetWinsock)){throw'Choose at least one repair action.'}
+Get-NetIPConfiguration|Format-List *|Out-File (Join-Path $OutputPath 'before.txt')
+if($FlushDns-and$PSCmdlet.ShouldProcess('DNS resolver cache','Flush')){Clear-DnsClientCache;ipconfig /flushdns|Tee-Object -FilePath $Log -Append;L'DNS cache flushed.'}
+if($RestartDnsClient-and$PSCmdlet.ShouldProcess('Dnscache','Restart service')){Restart-Service Dnscache -Force;L'DNS Client restarted.'}
+if($RenewDhcp){$targets=if($InterfaceAlias){Get-NetAdapter -Name $InterfaceAlias}else{Get-NetAdapter|Where-Object Status-eq'Up'};foreach($a in $targets){if($PSCmdlet.ShouldProcess($a.Name,'Renew DHCP lease')){ipconfig /release "$($a.InterfaceDescription)"|Tee-Object -FilePath $Log -Append;ipconfig /renew "$($a.InterfaceDescription)"|Tee-Object -FilePath $Log -Append;L"DHCP renewed for $($a.Name)"}}}
+if($ResetWinsock-and$PSCmdlet.ShouldProcess('Winsock catalog','Reset')){netsh winsock reset|Tee-Object -FilePath $Log -Append;netsh int ip reset|Tee-Object -FilePath $Log -Append;L'Winsock and IP reset completed; reboot may be required.'}
+Get-NetIPConfiguration|Format-List *|Out-File (Join-Path $OutputPath 'after.txt');L'Repair workflow finished.'
