@@ -54,7 +54,8 @@ set ARGS=-SetAutomaticDns -AdapterName "%ADAPTER%"
 goto run
 
 :run
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Unblock-File -LiteralPath '%~dp0DNS_DHCP_Repair_Toolkit.ps1' -ErrorAction SilentlyContinue; & '%~dp0DNS_DHCP_Repair_Toolkit.ps1' %ARGS%"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Unblock-File -LiteralPath '%~dp0DNS_DHCP_Repair_Toolkit.ps1' -ErrorAction SilentlyContinue"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0DNS_DHCP_Repair_Toolkit.ps1" %ARGS%
 echo.
 pause
 goto menu
