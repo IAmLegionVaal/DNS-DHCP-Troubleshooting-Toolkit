@@ -89,4 +89,8 @@ Double-click:
 Launch_DNS_DHCP_Repair.bat
 ```
 
-The scripts have been source-reviewed for Windows PowerShell 5.1 but have not been runtime-tested against every adapter, VPN, static-addressing or enterprise DNS configuration.
+## Validation status
+
+Tested successfully by the author on his own Windows machines. The documented DNS, DHCP, adapter and network-stack diagnostic and repair workflows worked as intended on those systems.
+
+Results may vary with the Windows build, adapter hardware and driver, DHCP server, DNS infrastructure, static addressing, VPN software, security policy, network topology and user-specific configuration. Use `-DryRun` before applying repairs on a new network or device.
